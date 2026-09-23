@@ -1,13 +1,21 @@
 # GroceryStore
 
-Aplicación web responsive para gestionar catálogo, inventario, ventas oficiales y fiadas, clientes, abonos, entradas de mercancía y caja.
+Aplicación web responsive para gestión de una tienda de abarrotes.
 
-## CRUD incluido
-- Productos: crear, editar y eliminar.
-- Ventas: crear, editar y eliminar con recálculo automático de inventario y crédito.
-- Entradas: crear, editar y eliminar con protección contra stock negativo.
-- Clientes: crear, editar y eliminar cuando no tienen movimientos históricos.
-- Abonos: crear, editar y eliminar.
-- Caja: configurar, editar y eliminar el fondo inicial diario.
+## GitHub Pages
 
-Los datos del MVP se almacenan en `localStorage` del navegador.
+Esta versión está preparada para publicarse desde un repositorio llamado `GroceryStore` usando GitHub Pages.
+
+### Publicación
+1. Sube todos los archivos de esta carpeta a la raíz de la rama `main`.
+2. En GitHub abre **Settings → Pages**.
+3. Selecciona **Deploy from a branch**.
+4. Selecciona **main** y **/(root)**.
+5. Guarda los cambios.
+
+La aplicación quedará disponible normalmente en:
+
+`https://gustavochan21.github.io/GroceryStore/`
+
+## Importante
+Los datos se almacenan en `localStorage`, por lo que cada navegador/dispositivo mantiene su propia información local.

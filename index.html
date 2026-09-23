@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -151,6 +151,6 @@
 
   <div class="modal" id="customerModal"><div class="modal-card small"><div class="modal-head"><div><h3 id="customerModalTitle">Nuevo cliente</h3><p>Datos para ventas a crédito y seguimiento de saldo</p></div><button class="close" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"><input type="hidden" id="customerEditId"><label class="span-2">Nombre<input required id="customerName" placeholder="Nombre completo"></label><label class="span-2">Teléfono<input id="customerPhone" placeholder="Opcional"></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="customerModal">Cancelar</button><button class="btn primary" id="customerSubmitBtn">Guardar cliente</button></div></form></div></div>
   <div class="toast" id="toast"></div>
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
