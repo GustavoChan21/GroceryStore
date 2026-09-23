@@ -1,4 +1,4 @@
-import { initCloud, signInCloud, signUpCloud, signOutCloud, pushCloudState, queueCloudSave, getCloudStatus, isCloudConfigured } from './database.js';
+import { initCloud, signInCloud, signUpCloud, signOutCloud, pushCloudState, queueCloudSave, getCloudStatus, isCloudConfigured } from './database.js?v=2.1.1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -519,10 +519,10 @@ $('#salesAllBtn').onclick = () => { salesFilters = { from: '', to: '', status: $
 function updateCloudUi(state = getCloudStatus()) {
   if (!$('#dbStatusBtn')) return;
   const btn = $('#dbStatusBtn'), text = $('#dbStatusText'), box = $('#cloudStatusBox');
-  btn.className = 'db-status ' + (state.syncing ? 'syncing' : state.mode === 'cloud' ? 'cloud' : state.mode === 'error' ? 'error' : 'local');
+  btn.className = 'db-status ' + (state.syncing ? 'syncing' : state.mode === 'cloud' ? 'cloud' : state.mode === 'ready' || state.mode === 'configured' ? 'ready' : state.mode === 'error' ? 'error' : 'local');
   if (state.syncing) text.textContent = 'Sincronizando…';
   else if (state.mode === 'cloud') text.textContent = 'Nube activa';
-  else if (state.mode === 'configured') text.textContent = 'Sin sesión';
+  else if (state.mode === 'ready' || state.mode === 'configured') text.textContent = 'Supabase listo';
   else if (state.mode === 'error') text.textContent = 'Error de nube';
   else text.textContent = 'Modo local';
   if (!box) return;
@@ -543,7 +543,8 @@ function updateCloudUi(state = getCloudStatus()) {
     $('#cloudLoginForm').classList.remove('hidden');
   } else {
     box.className = 'cloud-status-box';
-    box.innerHTML = '<strong>Supabase configurado</strong>Inicia sesión para guardar y consultar el histórico desde cualquier dispositivo.';
+    box.className = 'cloud-status-box ready';
+    box.innerHTML = '<strong>Supabase conectado</strong>La base de datos responde correctamente. Crea una cuenta o inicia sesión para activar la sincronización protegida entre dispositivos.';
     $('#cloudLoginForm').classList.remove('hidden');
     $('#cloudLogoutBtn').classList.add('hidden');
     $('#cloudSignupBtn').classList.remove('hidden');
@@ -557,7 +558,7 @@ async function applyRemoteState(remote) {
 }
 
 async function bootstrapCloud() {
-  updateCloudUi({ mode: isCloudConfigured() ? 'configured' : 'local' });
+  updateCloudUi({ mode: isCloudConfigured() ? 'ready' : 'local' });
   const state = await initCloud();
   if (state.data) await applyRemoteState(state.data);
   else if (state.mode === 'cloud') await pushCloudState(db);

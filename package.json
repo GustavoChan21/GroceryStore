@@ -1,6 +1,6 @@
 {
   "name": "grocery-store-v2",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "private": true,
   "scripts": {
     "start": "npx serve . -l 3000"

@@ -122,3 +122,15 @@ Si las ventas históricas superan el stock registrado, el sistema conserva la ve
 - Security advisor: sin observaciones al momento de la configuración.
 
 Para comenzar a sincronizar, abre la app, entra a **Base de datos / Nube**, crea una cuenta con correo y contraseña e inicia sesión. Los datos quedan aislados por usuario mediante RLS.
+
+## Estado de conexión Supabase
+
+Desde la versión 2.1.1 el indicador diferencia tres estados:
+
+- **Supabase listo:** la instancia está configurada y responde, pero todavía no hay una sesión de usuario iniciada.
+- **Nube activa:** el usuario inició sesión y los datos se sincronizan con `public.store_state`.
+- **Modo local:** solo aparece si `config.js` no contiene una configuración válida de Supabase.
+
+La versión 2.1.1 usa directamente las APIs HTTP de Supabase y ya no depende de `esm.sh`, lo cual mejora la compatibilidad con GitHub Pages y redes que bloquean CDNs de módulos.
+
+En este proyecto Supabase actualmente no hay usuarios creados todavía. Desde la propia aplicación pulsa **Base de datos → Crear cuenta**, confirma el correo si Supabase lo solicita y después inicia sesión. Al quedar autenticado el estado cambiará a **Nube activa**.
