@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#173f32" />
+  <title>Mi Tienda · Gestión de Abarrotes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">MT</div>
+        <div><strong>Mi Tienda</strong><span>Abarrotes</span></div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard"><span>⌂</span>Resumen</button>
+        <button class="nav-item" data-view="products"><span>▦</span>Catálogo</button>
+        <button class="nav-item" data-view="sales"><span>◫</span>Ventas</button>
+        <button class="nav-item" data-view="entries"><span>⇩</span>Entradas</button>
+        <button class="nav-item" data-view="credit"><span>◎</span>Fiado / Clientes</button>
+        <button class="nav-item" data-view="cash"><span>▣</span>Caja</button>
+      </nav>
+      <div class="sidebar-footer"><small>Inventario y ventas</small><strong id="sidebarDate"></strong></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn mobile-only" id="menuBtn">☰</button>
+        <div><h1 id="pageTitle">Resumen</h1><p id="pageSubtitle">Control diario de tu negocio</p></div>
+        <div class="top-actions">
+          <button class="btn secondary" id="exportBtn">Exportar respaldo</button>
+          <button class="btn primary" id="quickSaleBtn">+ Nueva venta</button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active">
+        <div class="hero-card">
+          <div class="hero-main">
+            <span class="eyebrow">TOTAL VENDIDO HOY</span>
+            <h2 id="todaySales">$0.00</h2>
+            <p><span id="todayTickets">0</span> tickets · cobrado + fiado</p>
+            <div class="hero-breakdown">
+              <div class="hero-metric paid"><span>Venta oficial / cobrada</span><strong id="todayPaidSales">$0.00</strong></div>
+              <div class="hero-metric credit"><span>Venta a crédito / fiado</span><strong id="todayCreditSales">$0.00</strong></div>
+            </div>
+          </div>
+          <div class="hero-icon">↗</div>
+        </div>
+        <div class="stats-grid four">
+          <article class="stat"><span>Utilidad estimada hoy</span><strong id="todayProfit">$0.00</strong><small>Venta − costo</small></article>
+          <article class="stat"><span>Por cobrar</span><strong id="receivables">$0.00</strong><small>Ventas a crédito pendientes</small></article>
+          <article class="stat"><span>Valor inventario</span><strong id="inventoryValue">$0.00</strong><small>A costo de compra</small></article>
+          <article class="stat"><span>Stock bajo</span><strong id="lowStockCount">0</strong><small>Productos por reponer</small></article>
+        </div>
+        <div class="grid-2">
+          <article class="panel"><div class="panel-head"><div><h3>Ventas recientes</h3><p>Últimos movimientos registrados</p></div><button class="link-btn" data-go="sales">Ver ventas</button></div><div id="recentSales"></div></article>
+          <article class="panel"><div class="panel-head"><div><h3>Inventario por reponer</h3><p>Existencias iguales o menores al mínimo</p></div><button class="link-btn" data-go="products">Ver catálogo</button></div><div id="lowStockList"></div></article>
+        </div>
+      </section>
+
+      <section id="view-products" class="view">
+        <div class="section-tools"><div class="search-wrap"><input id="productSearch" placeholder="Buscar por producto, categoría o código de barras"></div><select id="categoryFilter"><option value="">Todas las categorías</option></select><button class="btn primary" id="addProductBtn">+ Producto</button></div>
+        <div class="category-chips" id="categoryChips"></div>
+        <div class="product-grid" id="productGrid"></div>
+      </section>
+
+      <section id="view-sales" class="view">
+        <div class="stats-grid three">
+          <article class="stat stat-total"><span>Total vendido</span><strong id="salesTotalAll">$0.00</strong><small>Cobrado + fiado</small></article>
+          <article class="stat stat-paid"><span>Venta oficial / cobrada</span><strong id="salesPaidAll">$0.00</strong><small>Dinero ya recibido</small></article>
+          <article class="stat stat-credit"><span>Venta a crédito / fiado</span><strong id="salesCreditAll">$0.00</strong><small>No forma parte de caja hasta abonarse</small></article>
+        </div>
+        <div class="accounting-note"><strong>Importante:</strong> Total vendido ≠ efectivo en caja. Las ventas con tarjeta/transferencia están cobradas pero no son efectivo físico; el fiado queda pendiente de cobro.</div>
+        <article class="panel"><div class="panel-head"><div><h3>Historial de ventas</h3><p>Estado de cobro separado de la forma de pago</p></div><button class="btn primary" id="newSaleBtn">+ Registrar venta</button></div><div class="table-wrap"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Estado</th><th>Pago</th><th>Total</th><th>Utilidad</th><th>Acciones</th></tr></thead><tbody id="salesTable"></tbody></table></div></article>
+      </section>
+
+      <section id="view-entries" class="view">
+        <div class="stats-grid three">
+          <article class="stat"><span>Compra acumulada</span><strong id="purchaseTotal">$0.00</strong><small>Entradas de mercancía</small></article>
+          <article class="stat"><span>Unidades ingresadas</span><strong id="unitsEntered">0</strong><small>Total histórico</small></article>
+          <article class="stat"><span>Margen potencial</span><strong id="potentialMargin">$0.00</strong><small>Inventario a precio venta − costo</small></article>
+        </div>
+        <article class="panel"><div class="panel-head"><div><h3>Entradas de inventario</h3><p>Registra reposiciones y costos de compra</p></div><button class="btn primary" id="newEntryBtn">+ Nueva entrada</button></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Costo unitario</th><th>Inversión</th><th>Stock resultante</th><th>Acciones</th></tr></thead><tbody id="entriesTable"></tbody></table></div></article>
+      </section>
+
+      <section id="view-credit" class="view">
+        <div class="stats-grid three">
+          <article class="stat"><span>Saldo por cobrar</span><strong id="creditOutstanding">$0.00</strong><small>Cuentas activas</small></article>
+          <article class="stat"><span>Clientes con saldo</span><strong id="debtorsCount">0</strong><small>Personas pendientes</small></article>
+          <article class="stat"><span>Abonos recibidos</span><strong id="paymentsReceived">$0.00</strong><small>Histórico de abonos</small></article>
+        </div>
+        <div class="grid-2 credit-layout">
+          <article class="panel"><div class="panel-head"><div><h3>Clientes y cuentas por cobrar</h3><p>Administra clientes, saldos y abonos</p></div><button class="btn secondary" id="newCustomerBtn">+ Cliente</button></div><div id="customerAccounts"></div></article>
+          <article class="panel"><div class="panel-head"><div><h3>Movimientos de crédito</h3><p>Ventas fiadas y abonos</p></div></div><div id="creditMovements"></div></article>
+        </div>
+      </section>
+
+      <section id="view-cash" class="view">
+        <div class="cash-header panel">
+          <div><span class="eyebrow">CAJA DE HOY</span><h2 id="cashExpected">$0.00</h2><p>Efectivo esperado en caja</p></div>
+          <div class="inline-actions"><button class="btn ghost danger-text" id="clearCashBtn">Eliminar fondo</button><button class="btn primary" id="setCashBtn">Configurar fondo inicial</button></div>
+        </div>
+        <div class="stats-grid four">
+          <article class="stat"><span>Fondo inicial</span><strong id="openingCash">$0.00</strong></article>
+          <article class="stat"><span>Ventas en efectivo</span><strong id="cashSalesToday">$0.00</strong></article>
+          <article class="stat"><span>Abonos en efectivo</span><strong id="cashPaymentsToday">$0.00</strong></article>
+          <article class="stat"><span>Diferencia</span><strong id="cashDifference">—</strong><small>Al hacer corte</small></article>
+        </div>
+        <article class="panel cash-reconciliation">
+          <div class="panel-head"><div><h3>Cómo se forma el efectivo esperado</h3><p>Solo movimientos que físicamente ingresan efectivo a la caja</p></div></div>
+          <div class="cash-formula">
+            <div><span>Fondo inicial</span><strong id="formulaOpening">$0.00</strong></div><b>+</b>
+            <div><span>Ventas en efectivo</span><strong id="formulaCashSales">$0.00</strong></div><b>+</b>
+            <div><span>Abonos en efectivo</span><strong id="formulaCashPayments">$0.00</strong></div><b>=</b>
+            <div class="formula-total"><span>Debe haber en caja</span><strong id="formulaExpected">$0.00</strong></div>
+          </div>
+          <div class="outside-cash">
+            <div><span>Venta cobrada por tarjeta / transferencia hoy</span><strong id="nonCashSalesToday">$0.00</strong><small>Cobrada, pero no está físicamente en caja</small></div>
+            <div><span>Fiado generado hoy</span><strong id="creditSalesTodayCash">$0.00</strong><small>Pendiente por cobrar; no entra a caja</small></div>
+          </div>
+        </article>
+        <article class="panel"><div class="panel-head"><div><h3>Corte de caja</h3><p>Compara el efectivo esperado contra el contado físicamente</p></div></div><div class="cash-cut"><label>Efectivo contado<input type="number" id="countedCash" min="0" step="0.01" placeholder="0.00"></label><button class="btn secondary" id="calculateCashBtn">Calcular diferencia</button><div class="cut-result" id="cashCutResult">Ingresa el efectivo contado para conocer faltante o sobrante.</div></div></article>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="productModal"><div class="modal-card"><div class="modal-head"><div><h3 id="productModalTitle">Nuevo producto</h3><p id="productModalSubtitle">Agrega un artículo al catálogo</p></div><button class="close" data-close="productModal">×</button></div><form id="productForm" class="form-grid"><input type="hidden" id="productEditId">
+    <label class="span-2">Foto del producto<div class="upload-box"><input type="file" id="productImage" accept="image/*"><span id="imageHint">Seleccionar imagen</span></div></label>
+    <label>Nombre<input required id="pName" placeholder="Ej. Coca-Cola 600 ml"></label><label>Categoría<input required id="pCategory" list="categoryList" placeholder="Ej. Bebidas"><datalist id="categoryList"></datalist></label>
+    <label>Código de barras<input required id="pBarcode" placeholder="7501234567890"></label><label>Unidad de medida<select id="pUnit"><option>pieza</option><option>unidad</option><option>botella</option><option>bolsa</option><option>lata</option><option>caja</option><option>paquete</option><option>kg</option><option>g</option><option>litro</option><option>ml</option></select></label>
+    <label>Precio de venta<input required type="number" min="0" step="0.01" id="pPrice"></label><label>Costo actual<input required type="number" min="0" step="0.01" id="pCost"></label>
+    <label>Stock inicial<input required type="number" min="0" step="0.001" id="pStock"></label><label>Stock mínimo<input required type="number" min="0" step="0.001" id="pMinStock" value="5"></label>
+    <div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="productModal">Cancelar</button><button class="btn primary" id="productSubmitBtn">Guardar producto</button></div>
+  </form></div></div>
+
+  <div class="modal" id="saleModal"><div class="modal-card wide"><div class="modal-head"><div><h3 id="saleModalTitle">Registrar venta</h3><p id="saleModalSubtitle">Agrega productos al ticket y selecciona cómo se pagará</p></div><button class="close" data-close="saleModal">×</button></div>
+    <input type="hidden" id="saleEditId"><div class="sale-layout"><div><div class="search-wrap"><input id="saleProductSearch" placeholder="Buscar producto o escanear código"></div><div class="sale-products" id="saleProducts"></div></div><div class="ticket"><h4>Ticket</h4><label>Fecha y hora<input type="datetime-local" id="saleDate"></label><div id="cartItems" class="cart-items"></div><div class="ticket-total"><span>Total</span><strong id="cartTotal">$0.00</strong></div><label>Forma de pago<select id="paymentMethod"><option value="cash">Efectivo</option><option value="card">Tarjeta</option><option value="transfer">Transferencia</option><option value="credit">Fiado / Crédito</option></select></label><div id="saleAccountingNotice" class="sale-accounting-notice paid"><strong>Venta oficial / cobrada</strong><span>Se registrará como venta cobrada. Solo si eliges efectivo aumentará el dinero esperado en caja.</span></div><div id="customerFields" class="hidden"><label>Cliente<input id="creditCustomer" placeholder="Nombre del cliente"></label><label>Teléfono<input id="creditPhone" placeholder="Opcional"></label></div><button class="btn primary full" id="completeSaleBtn">Finalizar venta</button></div></div>
+  </div></div>
+
+  <div class="modal" id="entryModal"><div class="modal-card"><div class="modal-head"><div><h3 id="entryModalTitle">Nueva entrada</h3><p id="entryModalSubtitle">Repón inventario y registra tu costo real</p></div><button class="close" data-close="entryModal">×</button></div><form id="entryForm" class="form-grid"><input type="hidden" id="entryEditId"><label class="span-2">Fecha y hora<input required type="datetime-local" id="entryDate"></label><label class="span-2">Producto<select required id="entryProduct"></select></label><label>Cantidad<input required type="number" min="0.001" step="0.001" id="entryQty"></label><label>Costo unitario<input required type="number" min="0" step="0.01" id="entryCost"></label><div class="info-box span-2" id="entryInfo">Selecciona un producto.</div><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="entryModal">Cancelar</button><button class="btn primary" id="entrySubmitBtn">Registrar entrada</button></div></form></div></div>
+
+  <div class="modal" id="cashModal"><div class="modal-card small"><div class="modal-head"><div><h3>Fondo inicial</h3><p>Dinero disponible al iniciar el día</p></div><button class="close" data-close="cashModal">×</button></div><form id="cashForm" class="form-grid"><label class="span-2">Monto inicial<input required type="number" min="0" step="0.01" id="cashOpeningInput"></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="cashModal">Cancelar</button><button class="btn primary">Guardar</button></div></form></div></div>
+
+  <div class="modal" id="paymentModal"><div class="modal-card small"><div class="modal-head"><div><h3 id="paymentModalTitle">Registrar abono</h3><p id="paymentCustomerName"></p></div><button class="close" data-close="paymentModal">×</button></div><form id="paymentForm" class="form-grid"><input type="hidden" id="paymentCustomerId"><input type="hidden" id="paymentEditId"><label class="span-2">Monto<input required type="number" min="0.01" step="0.01" id="paymentAmount"></label><label class="span-2">Método<select id="paymentPayMethod"><option value="cash">Efectivo</option><option value="transfer">Transferencia</option><option value="card">Tarjeta</option></select></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="paymentModal">Cancelar</button><button class="btn primary" id="paymentSubmitBtn">Registrar abono</button></div></form></div></div>
+
+
+  <div class="modal" id="customerModal"><div class="modal-card small"><div class="modal-head"><div><h3 id="customerModalTitle">Nuevo cliente</h3><p>Datos para ventas a crédito y seguimiento de saldo</p></div><button class="close" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"><input type="hidden" id="customerEditId"><label class="span-2">Nombre<input required id="customerName" placeholder="Nombre completo"></label><label class="span-2">Teléfono<input id="customerPhone" placeholder="Opcional"></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="customerModal">Cancelar</button><button class="btn primary" id="customerSubmitBtn">Guardar cliente</button></div></form></div></div>
+  <div class="toast" id="toast"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
