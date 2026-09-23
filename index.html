@@ -33,6 +33,7 @@
         <button class="icon-btn mobile-only" id="menuBtn">☰</button>
         <div><h1 id="pageTitle">Resumen</h1><p id="pageSubtitle">Control diario de tu negocio</p></div>
         <div class="top-actions">
+          <button class="db-status local" id="dbStatusBtn" type="button"><span class="db-dot"></span><span><small>Base de datos</small><strong id="dbStatusText">Modo local</strong></span></button>
           <button class="btn secondary" id="exportBtn">Exportar respaldo</button>
           <button class="btn primary" id="quickSaleBtn">+ Nueva venta</button>
         </div>
@@ -57,6 +58,10 @@
           <article class="stat"><span>Valor inventario</span><strong id="inventoryValue">$0.00</strong><small>A costo de compra</small></article>
           <article class="stat"><span>Stock bajo</span><strong id="lowStockCount">0</strong><small>Productos por reponer</small></article>
         </div>
+        <article class="panel pending-credit-panel hidden" id="pendingCreditPanel">
+          <div class="panel-head"><div><h3>FIADO pendiente por pagar</h3><p>Permanece visible hasta que el cliente liquide su saldo</p></div><button class="link-btn" data-go="credit">Ver cuentas</button></div>
+          <div class="pending-credit-list" id="pendingCreditList"></div>
+        </article>
         <div class="grid-2">
           <article class="panel"><div class="panel-head"><div><h3>Ventas recientes</h3><p>Últimos movimientos registrados</p></div><button class="link-btn" data-go="sales">Ver ventas</button></div><div id="recentSales"></div></article>
           <article class="panel"><div class="panel-head"><div><h3>Inventario por reponer</h3><p>Existencias iguales o menores al mínimo</p></div><button class="link-btn" data-go="products">Ver catálogo</button></div><div id="lowStockList"></div></article>
@@ -70,6 +75,16 @@
       </section>
 
       <section id="view-sales" class="view">
+        <article class="panel history-filter-panel">
+          <div class="panel-head"><div><h3>Consultar histórico de ventas</h3><p>Filtra por día o rango de fechas para revisar ventas anteriores</p></div><span class="history-period" id="salesPeriodLabel">Hoy</span></div>
+          <div class="history-filters">
+            <label>Desde<input type="date" id="salesDateFrom"></label>
+            <label>Hasta<input type="date" id="salesDateTo"></label>
+            <label>Tipo<select id="salesStatusFilter"><option value="">Todas</option><option value="official">Oficial / cobrada</option><option value="credit">Fiado</option></select></label>
+            <div class="history-actions"><button class="btn secondary" id="salesTodayBtn" type="button">Hoy</button><button class="btn ghost" id="salesAllBtn" type="button">Todo el histórico</button></div>
+          </div>
+          <div class="daily-summary" id="salesDailySummary"></div>
+        </article>
         <div class="stats-grid three">
           <article class="stat stat-total"><span>Total vendido</span><strong id="salesTotalAll">$0.00</strong><small>Cobrado + fiado</small></article>
           <article class="stat stat-paid"><span>Venta oficial / cobrada</span><strong id="salesPaidAll">$0.00</strong><small>Dinero ya recibido</small></article>
@@ -132,9 +147,9 @@
   <div class="modal" id="productModal"><div class="modal-card"><div class="modal-head"><div><h3 id="productModalTitle">Nuevo producto</h3><p id="productModalSubtitle">Agrega un artículo al catálogo</p></div><button class="close" data-close="productModal">×</button></div><form id="productForm" class="form-grid"><input type="hidden" id="productEditId">
     <label class="span-2">Foto del producto<div class="upload-box"><input type="file" id="productImage" accept="image/*"><span id="imageHint">Seleccionar imagen</span></div></label>
     <label>Nombre<input required id="pName" placeholder="Ej. Coca-Cola 600 ml"></label><label>Categoría<input required id="pCategory" list="categoryList" placeholder="Ej. Bebidas"><datalist id="categoryList"></datalist></label>
-    <label>Código de barras<input required id="pBarcode" placeholder="7501234567890"></label><label>Unidad de medida<select id="pUnit"><option>pieza</option><option>unidad</option><option>botella</option><option>bolsa</option><option>lata</option><option>caja</option><option>paquete</option><option>kg</option><option>g</option><option>litro</option><option>ml</option></select></label>
+    <label>Código de barras <small class="field-optional">Opcional</small><input id="pBarcode" placeholder="7501234567890"></label><label>Unidad de medida<select id="pUnit"><option>pieza</option><option>unidad</option><option>botella</option><option>bolsa</option><option>lata</option><option>caja</option><option>paquete</option><option>kg</option><option>g</option><option>litro</option><option>ml</option></select></label>
     <label>Precio de venta<input required type="number" min="0" step="0.01" id="pPrice"></label><label>Costo actual<input required type="number" min="0" step="0.01" id="pCost"></label>
-    <label>Stock inicial<input required type="number" min="0" step="0.001" id="pStock"></label><label>Stock mínimo<input required type="number" min="0" step="0.001" id="pMinStock" value="5"></label>
+    <label>Stock base <small class="field-optional">Opcional</small><input type="number" min="0" step="0.001" id="pStock" placeholder="Déjalo vacío si aún no lo conoces"><span class="field-help">Cuando lo registres, se descontarán automáticamente las ventas históricas de este producto.</span></label><label>Stock mínimo <small class="field-optional">Opcional</small><input type="number" min="0" step="0.001" id="pMinStock" placeholder="0"></label>
     <div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="productModal">Cancelar</button><button class="btn primary" id="productSubmitBtn">Guardar producto</button></div>
   </form></div></div>
 
@@ -150,6 +165,16 @@
 
 
   <div class="modal" id="customerModal"><div class="modal-card small"><div class="modal-head"><div><h3 id="customerModalTitle">Nuevo cliente</h3><p>Datos para ventas a crédito y seguimiento de saldo</p></div><button class="close" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"><input type="hidden" id="customerEditId"><label class="span-2">Nombre<input required id="customerName" placeholder="Nombre completo"></label><label class="span-2">Teléfono<input id="customerPhone" placeholder="Opcional"></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="customerModal">Cancelar</button><button class="btn primary" id="customerSubmitBtn">Guardar cliente</button></div></form></div></div>
+
+  <div class="modal" id="dbModal"><div class="modal-card small"><div class="modal-head"><div><h3>Base de datos en la nube</h3><p>Sincroniza el histórico entre dispositivos con Supabase</p></div><button class="close" data-close="dbModal">×</button></div>
+    <div class="cloud-status-box" id="cloudStatusBox"></div>
+    <form id="cloudLoginForm" class="form-grid">
+      <label class="span-2">Correo<input type="email" id="cloudEmail" autocomplete="email" placeholder="tu@correo.com"></label>
+      <label class="span-2">Contraseña<input type="password" id="cloudPassword" autocomplete="current-password" placeholder="••••••••"></label>
+      <div class="modal-actions span-2 cloud-actions"><button type="button" class="btn ghost" id="cloudLogoutBtn">Cerrar sesión</button><button type="button" class="btn secondary" id="cloudSignupBtn">Crear cuenta</button><button class="btn primary" id="cloudLoginBtn">Iniciar sesión</button></div>
+    </form>
+    <div class="cloud-help"><strong>GitHub Pages compatible</strong><span>La URL y la anon key de Supabase son públicas por diseño. La seguridad se controla con RLS y la sesión del usuario.</span></div>
+  </div></div>
   <div class="toast" id="toast"></div>
   <script type="module" src="./app.js"></script>
 </body>
