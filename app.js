@@ -1,4 +1,4 @@
-import { initCloud, signInCloud, signUpCloud, signOutCloud, pushCloudState, queueCloudSave, getCloudStatus, isCloudConfigured } from './database.js?v=2.1.1';
+import { initCloud, pushCloudState, queueCloudSave, getCloudStatus, isCloudConfigured } from './database.js?v=2.2.0';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -515,78 +515,52 @@ $('#salesStatusFilter').onchange = () => { salesFilters.status = $('#salesStatus
 $('#salesTodayBtn').onclick = () => { salesFilters = { from: today(), to: today(), status: $('#salesStatusFilter').value || '' }; syncSalesFilterInputs(); renderSales(); };
 $('#salesAllBtn').onclick = () => { salesFilters = { from: '', to: '', status: $('#salesStatusFilter').value || '' }; syncSalesFilterInputs(); renderSales(); };
 
-// SUPABASE / CLOUD DATABASE
+// SUPABASE / CLOUD DATABASE — shared store, no login required
 function updateCloudUi(state = getCloudStatus()) {
   if (!$('#dbStatusBtn')) return;
   const btn = $('#dbStatusBtn'), text = $('#dbStatusText'), box = $('#cloudStatusBox');
-  btn.className = 'db-status ' + (state.syncing ? 'syncing' : state.mode === 'cloud' ? 'cloud' : state.mode === 'ready' || state.mode === 'configured' ? 'ready' : state.mode === 'error' ? 'error' : 'local');
+  btn.className = 'db-status ' + (state.syncing ? 'syncing' : state.mode === 'cloud' ? 'cloud' : state.mode === 'error' ? 'error' : 'local');
   if (state.syncing) text.textContent = 'Sincronizando…';
-  else if (state.mode === 'cloud') text.textContent = 'Nube activa';
-  else if (state.mode === 'ready' || state.mode === 'configured') text.textContent = 'Supabase listo';
+  else if (state.mode === 'cloud') text.textContent = 'Supabase conectado';
   else if (state.mode === 'error') text.textContent = 'Error de nube';
   else text.textContent = 'Modo local';
   if (!box) return;
   if (!isCloudConfigured()) {
     box.className = 'cloud-status-box warn';
-    box.innerHTML = '<strong>Supabase aún no está configurado</strong>Edita <code>config.js</code> con SUPABASE_URL y SUPABASE_ANON_KEY. Mientras tanto todo continúa funcionando en este navegador.';
-    $('#cloudLoginForm').classList.add('hidden');
-  } else if (state.mode === 'cloud' && state.user) {
+    box.innerHTML = '<strong>Supabase no configurado</strong>La aplicación continuará guardando información solo en este navegador.';
+  } else if (state.mode === 'cloud') {
     box.className = 'cloud-status-box ok';
-    box.innerHTML = `<strong>Nube conectada</strong>${esc(state.user.email || 'Usuario autenticado')} · histórico protegido por tu sesión${state.lastSync ? ' · última sincronización ' + new Date(state.lastSync).toLocaleString('es-MX') : ''}`;
-    $('#cloudLoginForm').classList.remove('hidden');
-    $('#cloudLogoutBtn').classList.remove('hidden');
-    $('#cloudSignupBtn').classList.add('hidden');
-    $('#cloudLoginBtn').classList.add('hidden');
+    box.innerHTML = `<strong>Supabase conectado</strong>Sin inicio de sesión. Los datos de esta tienda se sincronizan automáticamente${state.lastSync ? ' · última sincronización ' + new Date(state.lastSync).toLocaleString('es-MX') : ''}.`;
   } else if (state.mode === 'error') {
     box.className = 'cloud-status-box error';
-    box.innerHTML = `<strong>Error de conexión</strong>${esc(state.error || 'No fue posible sincronizar')}`;
-    $('#cloudLoginForm').classList.remove('hidden');
+    box.innerHTML = `<strong>Error de conexión</strong>${esc(state.error || 'No fue posible sincronizar con Supabase')}`;
   } else {
-    box.className = 'cloud-status-box';
     box.className = 'cloud-status-box ready';
-    box.innerHTML = '<strong>Supabase conectado</strong>La base de datos responde correctamente. Crea una cuenta o inicia sesión para activar la sincronización protegida entre dispositivos.';
-    $('#cloudLoginForm').classList.remove('hidden');
-    $('#cloudLogoutBtn').classList.add('hidden');
-    $('#cloudSignupBtn').classList.remove('hidden');
-    $('#cloudLoginBtn').classList.remove('hidden');
+    box.innerHTML = '<strong>Conectando con Supabase…</strong>Verificando la base de datos compartida de la tienda.';
   }
 }
 
 async function applyRemoteState(remote) {
   if (!remote || typeof remote !== 'object') return false;
-  db = remote; migrateDb(); renderCategories(); renderAll(); return true;
+  db = remote;
+  migrateDb();
+  renderCategories();
+  renderAll();
+  return true;
 }
 
 async function bootstrapCloud() {
-  updateCloudUi({ mode: isCloudConfigured() ? 'ready' : 'local' });
+  updateCloudUi({ mode: isCloudConfigured() ? 'connecting' : 'local' });
   const state = await initCloud();
-  if (state.data) await applyRemoteState(state.data);
-  else if (state.mode === 'cloud') await pushCloudState(db);
-  updateCloudUi(state); cloudBootstrapped = true;
+  if (state.mode === 'cloud') {
+    if (state.data) await applyRemoteState(state.data);
+    else await pushCloudState(db);
+  }
+  updateCloudUi(getCloudStatus());
+  cloudBootstrapped = true;
 }
 
 $('#dbStatusBtn').onclick = () => { updateCloudUi(); open('dbModal'); };
-$('#cloudLoginForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const email = $('#cloudEmail').value.trim(), password = $('#cloudPassword').value;
-  if (!email || !password) return showToast('Ingresa correo y contraseña');
-  try {
-    updateCloudUi({ ...getCloudStatus(), syncing: true });
-    const result = await signInCloud(email, password);
-    if (result.data) await applyRemoteState(result.data); else await pushCloudState(db);
-    updateCloudUi(getCloudStatus()); close('dbModal'); showToast('Base de datos conectada y sincronizada');
-  } catch (error) { updateCloudUi({ mode: 'error', error: error.message }); showToast(error.message); }
-};
-$('#cloudSignupBtn').onclick = async () => {
-  const email = $('#cloudEmail').value.trim(), password = $('#cloudPassword').value;
-  if (!email || !password) return showToast('Ingresa correo y contraseña');
-  try {
-    const result = await signUpCloud(email, password);
-    if (result.session) { await pushCloudState(db); updateCloudUi(getCloudStatus()); close('dbModal'); showToast('Cuenta creada y nube conectada'); }
-    else showToast('Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.');
-  } catch (error) { updateCloudUi({ mode: 'error', error: error.message }); showToast(error.message); }
-};
-$('#cloudLogoutBtn').onclick = async () => { await signOutCloud(); updateCloudUi(getCloudStatus()); showToast('Sesión de nube cerrada · los datos locales permanecen'); };
 
 // UI triggers
 $('#productSearch').oninput = renderProducts; $('#categoryFilter').onchange = renderProducts; $('#saleProductSearch').oninput = renderSaleProducts;

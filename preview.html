@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2.1.1" />
+  <link rel="stylesheet" href="./style.css?v=2.2.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -33,7 +33,7 @@
         <button class="icon-btn mobile-only" id="menuBtn">☰</button>
         <div><h1 id="pageTitle">Resumen</h1><p id="pageSubtitle">Control diario de tu negocio</p></div>
         <div class="top-actions">
-          <button class="db-status local" id="dbStatusBtn" type="button"><span class="db-dot"></span><span><small>Base de datos</small><strong id="dbStatusText">Supabase listo</strong></span></button>
+          <button class="db-status local" id="dbStatusBtn" type="button"><span class="db-dot"></span><span><small>Base de datos</small><strong id="dbStatusText">Conectando…</strong></span></button>
           <button class="btn secondary" id="exportBtn">Exportar respaldo</button>
           <button class="btn primary" id="quickSaleBtn">+ Nueva venta</button>
         </div>
@@ -166,16 +166,11 @@
 
   <div class="modal" id="customerModal"><div class="modal-card small"><div class="modal-head"><div><h3 id="customerModalTitle">Nuevo cliente</h3><p>Datos para ventas a crédito y seguimiento de saldo</p></div><button class="close" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"><input type="hidden" id="customerEditId"><label class="span-2">Nombre<input required id="customerName" placeholder="Nombre completo"></label><label class="span-2">Teléfono<input id="customerPhone" placeholder="Opcional"></label><div class="modal-actions span-2"><button type="button" class="btn ghost" data-close="customerModal">Cancelar</button><button class="btn primary" id="customerSubmitBtn">Guardar cliente</button></div></form></div></div>
 
-  <div class="modal" id="dbModal"><div class="modal-card small"><div class="modal-head"><div><h3>Base de datos en la nube</h3><p>Sincroniza el histórico entre dispositivos con Supabase</p></div><button class="close" data-close="dbModal">×</button></div>
+  <div class="modal" id="dbModal"><div class="modal-card small"><div class="modal-head"><div><h3>Base de datos en la nube</h3><p>Sincronización automática con Supabase</p></div><button class="close" data-close="dbModal">×</button></div>
     <div class="cloud-status-box" id="cloudStatusBox"></div>
-    <form id="cloudLoginForm" class="form-grid">
-      <label class="span-2">Correo<input type="email" id="cloudEmail" autocomplete="email" placeholder="tu@correo.com"></label>
-      <label class="span-2">Contraseña<input type="password" id="cloudPassword" autocomplete="current-password" placeholder="••••••••"></label>
-      <div class="modal-actions span-2 cloud-actions"><button type="button" class="btn ghost" id="cloudLogoutBtn">Cerrar sesión</button><button type="button" class="btn secondary" id="cloudSignupBtn">Crear cuenta</button><button class="btn primary" id="cloudLoginBtn">Iniciar sesión</button></div>
-    </form>
-    <div class="cloud-help"><strong>GitHub Pages compatible</strong><span>La URL y la anon key de Supabase son públicas por diseño. La seguridad se controla con RLS y la sesión del usuario.</span></div>
+    <div class="cloud-help"><strong>Conexión directa</strong><span>No necesitas crear cuenta ni iniciar sesión. Esta instalación usa una única base compartida para la tienda y sincroniza automáticamente el histórico entre dispositivos.</span></div>
   </div></div>
   <div class="toast" id="toast"></div>
-  <script type="module" src="./app.js?v=2.1.1"></script>
+  <script type="module" src="./app.js?v=2.2.0"></script>
 </body>
 </html>

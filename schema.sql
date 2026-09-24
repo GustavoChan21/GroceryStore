@@ -1,35 +1,38 @@
--- GroceryStore · Supabase schema
+-- GroceryStore v2.2.0 · Supabase schema
 -- Proyecto real: GroceryStore (qydihqbqqimeqnosdglv)
+-- Modo: una tienda compartida, sin inicio de sesión.
+-- La publishable key se usa desde GitHub Pages; nunca expongas service_role/sb_secret_*.
 
-create table if not exists public.store_state (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+create table if not exists public.store_state_shared (
+  id text primary key,
   data jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint store_state_shared_main_only check (id = 'main')
 );
 
-alter table public.store_state enable row level security;
+alter table public.store_state_shared enable row level security;
 
-drop policy if exists "store_state_select_own" on public.store_state;
-create policy "store_state_select_own"
-on public.store_state for select
-to authenticated
-using ((select auth.uid()) = user_id);
+grant select, insert, update on public.store_state_shared to anon;
+grant select, insert, update on public.store_state_shared to authenticated;
 
-drop policy if exists "store_state_insert_own" on public.store_state;
-create policy "store_state_insert_own"
-on public.store_state for insert
-to authenticated
-with check ((select auth.uid()) = user_id);
+drop policy if exists "shared_store_select" on public.store_state_shared;
+create policy "shared_store_select"
+on public.store_state_shared
+for select
+to anon, authenticated
+using (id = 'main');
 
-drop policy if exists "store_state_update_own" on public.store_state;
-create policy "store_state_update_own"
-on public.store_state for update
-to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+drop policy if exists "shared_store_insert" on public.store_state_shared;
+create policy "shared_store_insert"
+on public.store_state_shared
+for insert
+to anon, authenticated
+with check (id = 'main');
 
-drop policy if exists "store_state_delete_own" on public.store_state;
-create policy "store_state_delete_own"
-on public.store_state for delete
-to authenticated
-using ((select auth.uid()) = user_id);
+drop policy if exists "shared_store_update" on public.store_state_shared;
+create policy "shared_store_update"
+on public.store_state_shared
+for update
+to anon, authenticated
+using (id = 'main')
+with check (id = 'main');
