@@ -34,8 +34,7 @@ GroceryStore/
 ├── package.json
 ├── vercel.json
 ├── README.md
-└── supabase/
-    └── schema.sql
+└── schema.sql
 ```
 
 En GitHub:
@@ -52,21 +51,17 @@ Los recursos usan rutas relativas (`./style.css`, `./app.js`, etc.), por lo que 
 
 La app funciona sin Supabase en **Modo local**. Para guardar el histórico en una base de datos y consultarlo desde distintos dispositivos:
 
-### 1. Crear proyecto
+### 1. Esquema de base de datos
 
-Crea un proyecto de Supabase.
-
-### 2. Crear tabla y políticas
-
-En **SQL Editor**, ejecuta el archivo:
+El proyecto Supabase `GroceryStore` ya está creado. El archivo SQL de referencia está en la raíz del repositorio. Si necesitas reconstruir o verificar el esquema en otra instancia, en **SQL Editor** ejecuta:
 
 ```text
-supabase/schema.sql
+schema.sql
 ```
 
 Crea la tabla `store_state` y políticas RLS para que cada usuario solo pueda leer/escribir sus propios datos.
 
-### 3. Configurar autenticación
+### 2. Configurar autenticación
 
 En Supabase → Authentication → URL Configuration:
 
