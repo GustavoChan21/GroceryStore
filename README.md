@@ -1,75 +1,27 @@
-# GroceryStore v2.2.0
+# POSTROBBU · Hotel POS (demo estática)
 
-Aplicación web responsive para tienda de abarrotes, preparada para **GitHub Pages** y conectada directamente a **Supabase sin inicio de sesión**.
+Basado en la estrategia de **GroceryStore**: `index.html`, `style.css` y JavaScript plano desde la raíz, **sin Node, Vite, React, npm ni Supabase** para operar esta versión de demostración.
 
-## Funciones incluidas
+## GitHub Pages
+1. Sube **el contenido** de esta carpeta directamente a la raíz de `GustavoChan21/POSTROBBU` (no subas la carpeta contenedora).
+2. Conservar la única subcarpeta obligatoria: `.github/workflows/pages.yml`.
+3. Configura `Settings > Pages > Build and deployment > GitHub Actions`.
+4. El push a `main` publica automáticamente en `https://gustavochan21.github.io/POSTROBBU/`.
+5. Comprueba en la pestaña Actions que la ejecución terminó correctamente. No se requiere `npm install`.
 
-- CRUD de productos, ventas, entradas, clientes y abonos.
-- Código de barras opcional.
-- Stock opcional y cálculo diferido contra ventas históricas.
-- Ventas cobradas separadas de fiado.
-- Caja física = fondo inicial + ventas en efectivo + abonos en efectivo.
-- Badge permanente de FIADO pendiente por cliente.
-- Histórico de ventas por día o rango de fechas.
-- Entradas de inventario y costos.
-- Respaldo JSON.
-- Copia local en `localStorage` + sincronización automática con Supabase.
+## Vista previa en local
+Abre `index.html` directamente en tu navegador. También puedes usar `python3 -m http.server 8080` y abrir `http://localhost:8080`.
 
-## Estructura para GitHub Pages
+## Prueba guiada
+- POS: selecciona Restaurante Arbequina, toca Chilaquiles, elige extras, agrega a comanda y envía.
+- KDS: mueve Nueva > Preparando > Lista > Entregada.
+- Mesas y cuentas: cobra el pedido con tarjeta o cargo a habitación (simulados).
+- Inventario: comprueba el consumo de recetas y los movimientos de respaldo. Cambia a Pool Bar para transferir tequila desde Almacén general.
+- Dashboard: revisa ventas por punto de venta.
+- Configuración: crea 3 comandas de prueba, exporta respaldo o restablece la demo.
 
-Sube todos estos archivos directamente a la raíz del repositorio:
+## Base demo
+`seed.js` contiene el catálogo, puntos de venta, almacenes, insumos, recetas y modificadores. `app.js` guarda los movimientos en `localStorage` bajo `postrobbu-local-v3`. Los movimientos no se comparten entre dispositivos y no son contabilidad real.
 
-```text
-GroceryStore/
-├── .nojekyll
-├── index.html
-├── style.css
-├── app.js
-├── database.js
-├── config.js
-├── package.json
-├── vercel.json
-├── README.md
-└── schema.sql
-```
-
-En GitHub: `Settings` → `Pages` → `Deploy from a branch` → `main` → `/ (root)`.
-
-Los recursos usan rutas relativas (`./style.css`, `./app.js`, etc.), por lo que funcionan bajo `/GroceryStore/`.
-
-## Supabase
-
-Proyecto conectado:
-
-- Proyecto: `GroceryStore`
-- Project ref: `qydihqbqqimeqnosdglv`
-- Región: `us-east-1`
-- Tabla usada por la app: `public.store_state_shared`
-- Registro compartido: `main`
-- RLS: habilitado
-- Conexión: directa, sin registro ni inicio de sesión
-- Credencial frontend: publishable key pública en `config.js`
-
-`schema.sql` está en la raíz y contiene el esquema de referencia ya aplicado a Supabase.
-
-### Funcionamiento
-
-Al abrir la aplicación:
-
-1. Se carga primero la copia local del navegador.
-2. La app consulta `store_state_shared/main` en Supabase.
-3. Si ya existe información en nube, se usa ese histórico.
-4. Si la nube está vacía, se sube el estado local inicial.
-5. A partir de ahí, cada cambio se guarda localmente y se sincroniza automáticamente con Supabase.
-
-No hay flujo de correo, contraseña, confirmación ni redirect de autenticación.
-
-## Seguridad de esta modalidad
-
-La publishable key de Supabase es segura para incluirla en frontend, pero **no es una contraseña**. Como se solicitó operar sin inicio de sesión, el rol `anon` tiene permiso para leer y actualizar el único registro `main` de esta tienda. Cualquier persona que obtenga la URL del proyecto y la publishable key podría intentar acceder a ese registro.
-
-Para una instalación pública con datos sensibles o múltiples empleados, la opción más segura es volver a usar autenticación o colocar un backend/Edge Function con autorización. **Nunca** publiques una `service_role` o `sb_secret_*` en GitHub Pages.
-
-## Stock diferido
-
-Ejemplo: creas un producto sin stock, vendes 3 unidades y después registras stock base 10. El stock calculado pasa a 7. Si las ventas superan el stock registrado, se conserva la venta y se muestra faltante/stock negativo.
+## Importante
+Las operaciones de caja, PMS y habitación son simulaciones; no existe conexión con terminal bancaria ni bases remotas. Las validaciones de inventario son demostrativas. Para producción hace falta backend transaccional, permisos, auditoría y sincronización multi-dispositivo.
